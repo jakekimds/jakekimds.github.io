@@ -1,0 +1,14 @@
+#slide{
+	display: none;
+	max-width:100vw;
+	max-height:100vh;
+	width: auto;
+	height: auto;
+}
+
+body, html{
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	text-align: center;
+}

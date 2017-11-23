@@ -1,0 +1,51 @@
+<style>
+div{
+	font-size:100vh;
+	height:100vh; 
+	width:100vw;
+	display:inline-block;
+	margin:0;
+	padding:0;
+	border:0;
+	background-color: red;
+	position:absolute;
+}
+body,html{
+	overflow: hidden;
+	width:100%;
+	height:100%;
+	margin:0;
+	padding:0;
+}
+img{
+	width:100vw;
+	height:100vh;
+}
+</style>
+<div id="num" style="float:left">
+	<img id="img">
+</div>
+<!--<div id="num2" style="float:right"></div>-->
+<script>
+	var i = 0;
+	var t = 0;
+	var start = performance.now();
+	var end;
+	var col = [0,0,0];
+	var x;
+	var spd = 100
+	var wid = window.innerWidth;
+	var r = function(){
+		if(t%1 === 0){
+			for(x=0; x<3; x++){
+				col[x] = 0
+			}
+			col[i%3] = 255
+			document.getElementById("num").style.backgroundColor = "rgb("+col[0]+","+col[1]+","+col[2]+")"
+			i++
+		}
+		t++;
+		window.requestAnimationFrame(r)
+	}
+	window.requestAnimationFrame(r)
+</script>

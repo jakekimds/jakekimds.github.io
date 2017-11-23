@@ -1,0 +1,50 @@
+<style>
+div{
+	font-size:45vh;
+	height:100vh; 
+	width:50vw;
+	display:inline-block;
+	margin:0;
+	padding:0;
+	border:0;
+	position:absolute;
+}
+body,html{
+	overflow: hidden;
+	width:100%;
+	height:100%;
+	margin:0;
+	padding:0;
+	cursor:none;
+}
+</style>
+<div id="num" style="left:0;"></div>
+<div id="num2" style="left:50vw"></div>
+<script>
+	var i = 0;
+	var start = performance.now();
+	var end;
+	var col;
+	document.body.addEventListener("click", function(e){
+		var elem = document.body;
+		var requestFullScreen = elem.requestFullscreen || elem.msRequestFullscreen || elem.mozRequestFullScreen || elem.webkitRequestFullscreen;
+		requestFullScreen.call(document.body)
+	})
+	var r = function(){
+		i++;
+		//col = 127*(Math.sin(Math.PI*i/180)+1)
+		col = Math.abs((i*17/12)%511-255)
+		col = Math.floor(col)
+		//document.getElementById("num").innerHTML = col
+		document.getElementById("num").style.backgroundColor = "rgb("+col+","+col+","+col+")"
+		
+		col = 127*(Math.cos(Math.PI*i/180)+1)
+		col = Math.floor(col)
+		//document.getElementById("num").innerHTML = col
+		document.getElementById("num2").style.backgroundColor = "rgb("+col+","+col+","+col+")"
+
+		
+		window.requestAnimationFrame(r)
+	}
+	window.requestAnimationFrame(r)
+</script>

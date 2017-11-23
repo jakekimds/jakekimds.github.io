@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>24 Hours of Death by CGP Grey</title>
+		<style>
+			#player{
+				width:100vw;
+				height:100vh;
+				margin:0;
+				padding:0;
+			}
+			body, html{
+				width:100%;
+				height:100%;
+				margin:0;
+				padding:0;
+				overflow:hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="player"></div>
+
+		<script>
+			var counter = 0;
+			var tag = document.createElement('script');
+			var srcs = [
+				"QMNGEY8OZqo",
+				"aHRTtA7yTZ0"
+			]
+
+			tag.src = "https://www.youtube.com/iframe_api";
+			var firstScriptTag = document.getElementsByTagName('script')[0];
+			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+			var player;
+			function onYouTubeIframeAPIReady() {
+				player = new YT.Player('player', {
+					height: getDimenstions()[1],
+					width: getDimenstions()[0],
+					videoId: srcs[ampm()],
+					events: {
+						'onReady': onPlayerReady,
+						'onStateChange': onPlayerStateChange
+					},
+					playerVars:{
+						showinfo: 0,
+						rel: 0,
+						controls: 0,
+						//disablekb: 1
+					}
+				});
+			}
+
+			function getDimenstions(){
+				var totWidth = window.innerWidth;
+				var totHeight = window.innerHeight;
+				var screenRatio = totWidth/totHeight;
+				var width = 960;
+				var height = 540;
+				if(screenRatio >= 16/9){
+					height = totHeight;
+					width = totHeight * (16/9);
+				}else if(screenRatio < 16/9){
+					height = totWidth * (9/16);
+					width = totWidth;
+				}
+				width = Math.round(width)
+				height = Math.round(height)
+				return [width, height]
+			}
+
+			function onPlayerReady(){
+				player.playVideo()
+				//document.getElementById("player").contentDocument.body.focus()
+			}
+
+			function onPlayerStateChange(e){
+				if(e.data === 0){
+					player.loadVideoById({
+						videoId: srcs[ampm()]
+					})
+				}else{
+					
+					if([-1, 1].indexOf(e.data) !== -1){
+						window.clearInterval(counter);
+						counter = window.setInterval(function(){
+							if(player.getVideoUrl().indexOf(srcs[ampm()]) !== -1){
+								player.loadVideoById({
+									videoId: srcs[ampm()]
+								})
+							}
+							player.seekTo(getSecondsFrom12(), true)
+						}, 3600*1000)
+						player.seekTo(getSecondsFrom12(), true)
+					}
+				}
+			}
+
+
+			function getSecondsFrom12() {
+				var d = new Date();
+				var e = new Date(d);
+				var secondsFromMidnight = Math.round((d - e.setHours(0,0,0,0))/1000);
+				if(secondsFromMidnight >= 12*60*60){
+					return secondsFromMidnight % (12*60*60)
+				}
+				return secondsFromMidnight
+			}
+
+			function ampm(){
+				var d = new Date();
+				var e = new Date(d);
+				var secondsFromMidnight = Math.round((d - e.setHours(0,0,0,0))/1000);
+				if(secondsFromMidnight >= 12*60*60){
+					return 1
+				}
+				return 0
+			}
+		</script>
+	</body>
+</html>
