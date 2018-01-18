@@ -1,0 +1,15 @@
+<body>
+<script>
+
+var i=0,b=document.body,d=20,n=b.clientWidth,m=b.clientHeight,f="width=10,height=10,"
+var o=new Function("f","i","t",'open("","",f+"left="+i+",top="+t)')
+for(j=0;j<m/d;++j,i=j*d){
+   u=Math.sqrt(i*(m-i))
+   t=m/2+u*(j%2-0.5)*2
+   o(f,i,t)
+   i>m/5&&i<0.8*m&&j%2&&o(f,i,t-m/4);
+   ((i<m/3&&i>m/4)||(i<3*m/4&&i>2*m/3))&&o(f,i,m/3)
+}
+
+</script>
+</body>
