@@ -1,4 +1,4 @@
-var slideCount = 19
+var slideCount = 15
 var imgurl = "https://raw.githubusercontent.com/jakekimds/files/master/img/"
 var imgext = "png";
 var currentSlide = 1;

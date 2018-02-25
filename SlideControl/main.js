@@ -82,7 +82,7 @@ function gotoSlide(slide, socket){
 		return;
 	}
 	currentSlide = slide;
-	img.src = url+currentSlide+"."+ext
+	img.src = url+"PNG-"+currentSlide+"."+ext
 	socket.emit("gotoSlide", {
 		id: gebi("id").value,
 		slideNumber: slide
