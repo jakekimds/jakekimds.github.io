@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head></head>
+	<body>
+		<canvas id="canvas"></canvas>
+		<h1 id="time"></h1>
+		<label><input id="showbar" type="checkbox">Show Bar</label><br>
+		<label><input id="color" type="checkbox">Color</label><br>
+		<label>Size: <input type="range" min="1" max="12" value="5" id="size"><label>
+		<script>
+			var canvas = document.getElementById("canvas");
+			var ctx = canvas.getContext("2d");
+			var radii = [25, 50, 75, 100, 125, 150, 175, 200, 225, 250];
+			var speeds = [1,2,3,4,5,6,10,12,15,20,30,60];
+			//var colors = ["red", "orange", "green", "blue", "purple"]
+			var time = 0;
+			var width = 600;
+			var height = 600;
+			canvas.width = width;
+			canvas.height = height;
+			function getRadii(){
+				var out = [];
+				for(var i = 1; i <= speeds.length; i++){
+					if(i*25 >= (width-50)/2 || i*25 >=height){
+						break;
+					}
+					out.push(i*25);
+				}
+				return out;
+			}
+			function drawCirc(x, y, rad, color){
+				ctx.beginPath();
+				ctx.strokeStyle = color;
+				ctx.arc(x,y,rad,0,2*Math.PI);
+				ctx.stroke();
+			}
+			function rainbowRGB(length, maxLength){
+				var i = (length * 255 / maxLength);
+				var r = Math.round(Math.sin(0.024 * i + 0) * 127 + 128);
+				var g = Math.round(Math.sin(0.024 * i + 2) * 127 + 128);
+				var b = Math.round(Math.sin(0.024 * i + 4) * 127 + 128);
+				return 'rgb(' + r + ',' + g + ',' + b + ')';
+			}
+			function rainbow(n) {
+				n = n * 240 / radii.length;
+				return 'hsl(' + n + ',100%,50%)';
+			}
+			function drawPoint(x,y,radius,angle, color){
+				var x = x + radius * Math.cos(angle);
+				var y = y + radius * Math.sin(angle);
+				ctx.fillStyle = color;
+				ctx.beginPath();
+				var size = parseInt(document.getElementById("size").value);
+				ctx.arc(x,y,size,0,2*Math.PI);
+				ctx.fill();
+			}
+			function drawPoint2(x,y,radius, color){
+				ctx.fillStyle = color;
+				ctx.beginPath();
+				ctx.arc(x,y,5,0,2*Math.PI);
+				ctx.fill();
+			}
+			function drawCircs(time){
+				var showcolor = document.getElementById("color").checked;
+				drawCirc(width/2, height/2, 1, "black");
+				for(var i = 0; i < radii.length; i++){
+					var angle = (time/speeds[i]*2*Math.PI)%(2*Math.PI);
+					var color = "black"
+					if(showcolor){
+						color = rainbow(i);
+					}
+					drawCirc(width/2, height/2,radii[i], color);
+					drawPoint(width/2, height/2, radii[i], angle, color);
+				}
+			}
+			function shuffleArray(array) {
+				for (var i = array.length - 1; i > 0; i--) {
+					var j = Math.floor(Math.random() * (i + 1));
+					var temp = array[i];
+					array[i] = array[j];
+					array[j] = temp;
+				}
+				return array
+			}
+			function drawBar(time){
+				var showcolor = document.getElementById("color").checked;
+				ctx.fillStyle = "black";
+				var x = width-6;
+				ctx.fillRect(x,10,1,height-20);
+				for(var i = 0; i < radii.length; i++){
+					var y = ((time/speeds[i]*2*Math.PI)%(2*Math.PI))/(2*Math.PI)*(height-20);
+					var color = "black"
+					if(showcolor){
+						color = rainbow(i);
+					}
+					drawPoint2(x, y, 5, color);
+				}
+			}
+			var speed = 1;
+			var start = Date.now()/1000*speed;
+			radii = getRadii();
+			setInterval(function(){
+				ctx.clearRect(0,0, width, height);
+				ctx.fillStyle = "white";
+				ctx.fillRect(0,0, width, height);
+				var now = Date.now()/1000*speed-start;
+				drawCircs(now);
+				if(document.getElementById("showbar").checked){
+					drawBar(now);
+				}
+				document.getElementById("time").innerHTML = parseInt(now);
+			}, 10);
+			
+		</script>
+	</body>
+</html>
