@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
-	<head></head>
+	<head>
+		<style>
+			html,body{
+				overflow:hidden;
+			}
+		</style>
+	</head>
 	<body>
 		<canvas id="canvas"></canvas>
 		<script>
@@ -12,14 +18,15 @@
 			var time = 0;
 			var width = 600;
 			var height = 600;
-			width = document.documentElement.clientWidth*.8;
-			height = document.documentElement.clientHeight*.8;
+			var sze = Math.min(document.documentElement.clientWidth, document.documentElement.clientHeight)-20;
+			width = sze;
+			height = sze;
 			canvas.width = width;
 			canvas.height = height;
 			function getRadii(){
 				var out = [];
 				for(var i = 1; i <= speeds.length; i++){
-					if(i*25 >= width/2 || i*25 >= height/2){
+					if(i*25 >= width/2-25 || i*25 >= height/2){
 						break;
 					}
 					out.push(i*25);
@@ -43,14 +50,61 @@
 				n = n * 240 / radii.length;
 				return 'hsl(' + n + ',100%,50%)';
 			}
+			function gcd(max,min){
+			    rem = max%min;
+			    max=min; // update variables until remainder is equal to 0
+			    min=rem;
+			    if(rem === 0) {
+			        return max; // return the max variable for GCD
+			    } 
+			    else {
+			        return  gcd(max,min);
+			    }
+			}
+
+			//This function computes the LCM
+			function lcm(a,b){
+			    return (a*b)/gcd(a,b)
+			}
+
+			//This function is the Iterator, it computes the LCM for the numbers
+			//in the INPUT array recursively by calling the previous function
+			function lcmIter(arr,len){
+				if(len === undefined){
+					len = arr.length
+				}
+			    //LENGTH of array -> 2 is the base case here, if there are only  
+			    //two numbers just compute its LCM and return it.
+			    if(len === 2){
+			        return lcm(arr[0],arr[1])
+			    }
+			    //If there are more than two numbers, compute the LCM of last 
+			    //number with the rest of array(now the array is one less)
+			    else{
+			        return lcm(arr[len-1],lcmIter(arr,len-1))
+			    }
+			}
 			function drawPoint(x,y,radius,angle, color){
 				var x = x + radius * Math.cos(angle);
 				var y = y + radius * Math.sin(angle);
 				ctx.fillStyle = color;
 				ctx.beginPath();
-				var size = parseInt(5);
+				var size = 7
 				ctx.arc(x,y,size,0,2*Math.PI);
 				ctx.fill();
+			}
+			function drawCircs(time){
+				drawCirc(width/2, height/2, 1, "black");
+				for(var i = 0; i < radii.length; i++){
+					var angle = (time/speeds[i]*2*Math.PI)%(2*Math.PI);
+					if(i >= radii.length - 1){
+						angle = (time/lcmIter(speeds.slice(0, radii.length-1))*2*Math.PI)%(2*Math.PI);
+					}
+					var color = "black"
+					color = rainbow(i);
+					drawCirc(width/2, height/2,radii[i], color);
+					drawPoint(width/2, height/2, radii[i], angle, color);
+				}
 			}
 			function drawPoint2(x,y,radius, color){
 				ctx.fillStyle = color;
@@ -58,15 +112,13 @@
 				ctx.arc(x,y,5,0,2*Math.PI);
 				ctx.fill();
 			}
-			function drawCircs(time){
-				drawCirc(width/2, height/2, 1, "black");
-				for(var i = 0; i < radii.length; i++){
-					var angle = (time/speeds[i]*2*Math.PI)%(2*Math.PI);
-					var color = "black"
-					color = rainbow(i);
-					drawCirc(width/2, height/2,radii[i], color);
-					drawPoint(width/2, height/2, radii[i], angle, color);
-				}
+			function drawBar(time){
+				ctx.fillStyle = "black";
+				var y = width-6;
+				ctx.fillRect(10,y, width-20, 1);
+				var x = ((time/lcmIter(speeds.slice(0, radii.length-1))*2*Math.PI)%(2*Math.PI))/(2*Math.PI)*(width-20)+10;
+				var color = "black"
+				drawPoint2(x, y, 5, rainbow(speeds.length-1));
 			}
 			var speed = 1;
 			var start = Date.now()/1000*speed;
@@ -77,6 +129,7 @@
 				ctx.fillRect(0,0, width, height);
 				var now = Date.now()/1000*speed-start;
 				drawCircs(now);
+				drawBar(now);
 			}, 10);
 			
 		</script>
