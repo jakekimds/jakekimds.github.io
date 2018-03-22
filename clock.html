@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			html,body{
+				overflow:hidden;
+				text-align: center;
+				background-color: black;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="canvas"></canvas>
+		<span id="timer"></span>
+		<script>
+			var canvas = document.getElementById("canvas");
+			var ctx = canvas.getContext("2d");
+			var sze = Math.min(document.documentElement.clientWidth, document.documentElement.clientHeight)-20;
+			var width = sze;
+			var height = sze;
+			canvas.width = width;
+			canvas.height = height;
+			var distance = (width-200)/24;
+
+			function drawCirc(x, y, rad, color){
+				ctx.beginPath();
+				ctx.strokeStyle = color;
+				ctx.arc(x,y,rad,0,2*Math.PI);
+				ctx.stroke();
+			}
+			function rainbow(n,l) {
+				n = n * 360 / l;
+				return 'hsl(' + n + ',100%,50%)';
+			}
+			function drawPoint(x,y,radius,rate, color){
+				var angle = rate*2*Math.PI-(Math.PI/2)
+				var x = x + radius * Math.cos(angle);
+				var y = y + radius * Math.sin(angle);
+				ctx.fillStyle = color;
+				ctx.beginPath();
+				var size = 7
+				ctx.arc(x,y,size,0,2*Math.PI);
+				ctx.fill();
+			}
+			function drawCircs(time){
+				var ms = time.getMilliseconds();
+				var second = time.getSeconds()+ms/1000;
+				var minute = time.getMinutes()+second/60;
+				var hour = time.getHours()%12+minute/60;
+				for(var i = 1; i <= 12; i++){
+					var color = rainbow(12-(i), 12);
+					var rate = 0;
+					if(12-i < hour){
+						rate = minute/60;
+						color = rainbow(minute, 60)
+					}else{
+						rate = hour/12;
+						color = rainbow(hour,12)
+					}
+					drawPoint(width/2, height/2, i*distance, rate, color);
+					drawCirc(width/2, height/2, i*distance, color);
+				}
+			}
+			function drawText(x,y,radius,hour, text, color){
+				var angle = (hour/12)*2*Math.PI-(Math.PI/2)
+				var size = 30;
+				var x = x + radius * Math.cos(angle);
+				var y = y + radius * Math.sin(angle);
+				ctx.fillStyle = color;
+				ctx.textAlign = "center"
+				ctx.textBaseline = "middle"
+				ctx.font = size+"px Arial";
+				ctx.fillText(text,x,y);
+			}
+			function drawTime(time){
+				var ms = time.getMilliseconds();
+				var second = time.getSeconds()+ms/1000;
+				var minute = time.getMinutes()+second/60;
+				for(var i = 0; i < 12; i++){
+					drawText(width/2, height/2, distance*13.2, i+1, parseInt(i+1), rainbow(i, 12));
+				}
+				//drawText(width/2, height/2, distance*13.2, minute/5, parseInt(minute));
+			}
+			setInterval(function(){
+				ctx.clearRect(0,0, width, height);
+				ctx.fillStyle = "black";
+				ctx.fillRect(0,0, width, height);
+				var now = new Date(Date.now());
+				drawCircs(now);
+				drawTime(now);
+			}, 50);
+			
+		</script>
+	</body>
+</html>
