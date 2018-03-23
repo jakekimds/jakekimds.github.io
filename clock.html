@@ -50,12 +50,12 @@
 				for(var i = 1; i <= 12; i++){
 					var color = rainbow(12-(i), 12);
 					var rate = 0;
-					if(12-i < hour){
+					if((12-i+1) < hour){
 						rate = minute/60;
-						color = rainbow(minute, 60)
+						color = rainbow(minute-5, 60)
 					}else{
 						rate = hour/12;
-						color = rainbow(hour,12)
+						color = rainbow(hour-1,12)
 					}
 					drawPoint(width/2, height/2, i*distance, rate, color);
 					drawCirc(width/2, height/2, i*distance, color);
