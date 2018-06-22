@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+	<body>
+		<div id="controls" style="display:none">
+			<input type="file" id="upload">
+			<input type="button" onclick="encode()" value="encode">
+			<input type="button" onclick="decode()" value="decode">
+			<img id="img">
+		</div>
+		<div id="query">
+			Please wait...
+		</div>
+		<a href="#" id="link" style="display:none">Click</a>
+
+		<script>
+			(function(){
+				var params = (new URL(document.location)).searchParams;
+				if(params.has("URL")){
+					var url = params.get("URL")
+					var img = new Image();
+					img.addEventListener("load", readImage)
+					img.src = decodeURI(url);
+				}else{
+					document.getElementById("controls").style.display = "block"
+					document.getElementById("query").style.display = "none"
+
+				}
+			})()
+			function encode(){
+				var upload = document.getElementById("upload")
+				var file = upload.files[0]
+				var fileReader = new FileReader()
+				fileReader.addEventListener("load", onRead)
+				fileReader.readAsArrayBuffer(file)
+			}
+
+			function decode(){
+				var upload = document.getElementById("upload")
+				var file = upload.files[0]
+				var fileReader = new FileReader()
+				fileReader.addEventListener("load", onReadImage)
+				fileReader.readAsArrayBuffer(file)
+			}
+
+			function onRead(event){
+				var buffer = event.target.result
+				var array = new Int8Array(buffer)
+				drawToCanvas(array, document.getElementById("upload").files[0].name)
+			}
+
+			function onReadImage(event) {
+				var upload = document.getElementById("upload")
+				var url = URL.createObjectURL(upload.files[0]);
+				var img = new Image();
+				img.addEventListener("load", readImage)
+				img.src = url;
+			}
+
+			function readImage(event){ 
+				var img = event.target
+				var canvas = document.createElement("canvas")
+				canvas.width = img.width + 2
+				canvas.height = img.height + 2
+				var ctx = canvas.getContext("2d")
+				ctx.drawImage(img, 0, 0)
+				var data = ctx.getImageData(0, 0, img.width - 1, img.height - 1).data
+				var offset = 16
+				var sizearr = []
+				for(var i = 0; i < offset; i++){
+					if(i % 4 == 0){
+						sizearr.push(data[i]-128)
+					}
+				}
+
+				offset += 85 * 4
+				var name = ""
+				for(var i = 16; i < offset; i++){
+					if(i % 4 != 3 && data[i] > 0){
+						name += String.fromCharCode(data[i])
+					}else if(data[i] == 0){
+						break
+					}
+				}
+
+				console.log(name)
+
+				var size = fromBytesInt32(sizearr)
+				var datanum = 0
+				var arr = new Int8Array(size)
+				for(var i = offset; datanum < size; i++){
+					if(i % 4 != 3){
+						arr[datanum] = data[i] - 128
+						datanum ++
+					}
+				}
+				arrToFileURL(arr, name)
+
+			}
+
+			function arrToFileURL(arr, name){
+				var blob = new Blob( [ arr.buffer ]);
+				var file = new File([blob], "dsfs")
+				var objectURL = URL.createObjectURL( file );
+				console.log(objectURL)
+				var link = document.getElementById("link")
+				link.href = objectURL;
+				link.href = URL.createObjectURL( blob );
+				link.download =  name;
+				link.style.display="inline"
+			}
+
+			function fromBytesInt32 (arr) {
+				var array = new Int8Array(4)
+				for(var i = 0; i < 4; i++){
+					array[i] = arr[i]
+				}
+				var view = new DataView(array.buffer);
+				return view.getInt32(0);
+			}
+
+			function toBytesInt32 (num) {
+				var arr = new ArrayBuffer(4); // an Int32 takes 4 bytes
+				var view = new DataView(arr);
+				view.setUint32(0, num, false); // byteOffset = 0; litteEndian = false
+				return arr;
+			}
+
+			function drawToCanvas(array, name){
+				var canvas = document.createElement("canvas")
+				var dimension = Math.sqrt((array.length)/3+4+256)+1
+				canvas.width = dimension + 2
+				canvas.height = dimension + 2
+				var ctx = canvas.getContext("2d")
+				var i = 0
+				var pixnum = 0
+				var size = new Int8Array(toBytesInt32(array.length))
+				var namesize = 0
+				for(var y = 0; y < dimension; y++){
+					for(var x = 0; x < dimension; x++){
+						if(pixnum < 4){
+							ctx.fillStyle = "rgba("+safeGet(size, pixnum).toString()+",0,0,1)"
+							ctx.fillRect( x, y, 1, 1 )
+						}else if(namesize < 255){
+							var r = 0, g = 0, b = 0;
+							if(namesize < name.length){
+								r = name[namesize].charCodeAt(0).toString()
+							}else if(namesize > name.length){
+								r = parseInt(Math.random() * 256)
+							}
+							namesize++
+							if(namesize < name.length){
+								g = name[namesize].charCodeAt(0).toString()
+							}else if(namesize > name.length){
+								g = parseInt(Math.random() * 256)
+							}
+							namesize++
+							if(namesize < name.length){
+								b = name[namesize].charCodeAt(0).toString()
+							}else if(namesize > name.length){
+								b = parseInt(Math.random() * 256)
+							}
+							namesize++
+							ctx.fillStyle = "rgba("+r+","+g+","+b+",1)"
+							ctx.fillRect( x, y, 1, 1 )
+						}else{
+							ctx.fillStyle = "rgba("+safeGet(array, i++).toString()+","+safeGet(array, i++).toString()+","+safeGet(array, i++).toString()+",1)"
+							ctx.fillRect( x, y, 1, 1 )
+						}
+						pixnum++
+					}
+				}
+				var img = canvas.toDataURL("image/png")
+				document.getElementById("img").src = img
+			}
+
+			function safeGet(array, index){
+				if(index >= array.length){
+					return parseInt(Math.random() * 256)
+				}else{
+					var el = array[index]+128
+					if(el < 0 || el > 255){
+						console.log("AHH")
+					}
+					return el
+				}
+			}
+		</script>
+	</body>
+</html>
