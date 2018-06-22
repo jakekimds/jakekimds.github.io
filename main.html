@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html>
 	<body>
-		<div id="query">
+		<div id="decode">
 			<input type="file" id="upload">
 			<input type="button" onclick="decode()" value="decode">
-			Please wait...
+			<a href="#" id="link" style="display:none">Click</a>
 		</div>
 
-		<div id="controls" style="display:none">
+		<div id="encode" style="display:none">
 			<input type="button" onclick="encode()" value="encode">
 			<img id="img">
 		</div>
-		<a href="#" id="link" style="display:none">Click</a>
 
 		<script>
 			(function(){
 				var params = (new URL(document.location)).searchParams;
-				if(params.has("control")){
-					document.getElementById("controls").style.display = "block"
+				if(params.has("encode")){
+					document.getElementById("encode").style.display = "block"
 				}else{
 
 				}
