@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-	<body>
+	<body>2
 		<div id="controls" style="display:none">
 			<input type="file" id="upload">
 			<input type="button" onclick="encode()" value="encode">
@@ -19,6 +19,7 @@
 					var url = params.get("URL")
 					var img = new Image();
 					img.addEventListener("load", readImage)
+					img.crossOrigin = "Anonymous";
 					img.src = decodeURI(url);
 				}else{
 					document.getElementById("controls").style.display = "block"
