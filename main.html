@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html>
-	<body>2
-		<div id="controls" style="display:none">
-			<input type="file" id="upload">
-			<input type="button" onclick="encode()" value="encode">
-			<input type="button" onclick="decode()" value="decode">
-			<img id="img">
-		</div>
+	<body>
 		<div id="query">
+			<input type="file" id="upload">
+			<input type="button" onclick="decode()" value="decode">
 			Please wait...
+		</div>
+
+		<div id="controls" style="display:none">
+			<input type="button" onclick="encode()" value="encode">
+			<img id="img">
 		</div>
 		<a href="#" id="link" style="display:none">Click</a>
 
 		<script>
 			(function(){
 				var params = (new URL(document.location)).searchParams;
-				if(params.has("URL")){
-					var url = params.get("URL")
-					var img = new Image();
-					img.addEventListener("load", readImage)
-					img.crossOrigin = "Anonymous";
-					img.src = decodeURI(url);
-				}else{
+				if(params.has("control")){
 					document.getElementById("controls").style.display = "block"
-					document.getElementById("query").style.display = "none"
+				}else{
 
 				}
 			})()
